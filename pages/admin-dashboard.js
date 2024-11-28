@@ -2,256 +2,443 @@ document.addEventListener('DOMContentLoaded', () => {
     // Sidebar Toggle
     const sidebar = document.getElementById('sidebar');
     const sidebarToggle = document.getElementById('sidebar-toggle');
-    const mainContent = document.getElementById('main-content');
-
+    
     sidebarToggle.addEventListener('click', () => {
         sidebar.classList.toggle('collapsed');
-        mainContent.classList.toggle('expanded');
     });
 
-    // Menu Item Navigation
+    // Section Navigation
     const menuItems = document.querySelectorAll('.menu-item');
-    const sections = {
-        'dashboard': document.getElementById('dashboard-section'),
-        'products': document.getElementById('products-section'),
-        'users': document.getElementById('users-section'),
-        'logs': document.getElementById('logs-section')
-    };
+    const sections = document.querySelectorAll('.section');
 
     menuItems.forEach(item => {
         item.addEventListener('click', () => {
-            // Remove active class from all menu items
+            // Handle logout separately
+            if (item.classList.contains('logout')) {
+                handleLogout();
+                return;
+            }
+
+            // Remove active class from all menu items and sections
             menuItems.forEach(mi => mi.classList.remove('active'));
+            sections.forEach(sec => sec.classList.remove('active'));
+
+            // Add active class to clicked menu item and corresponding section
             item.classList.add('active');
-
-            // Hide all sections
-            Object.values(sections).forEach(section => {
-                section.classList.remove('active-section');
-                section.classList.add('hidden-section');
-            });
-
-            // Show selected section
             const sectionId = item.dataset.section;
-            sections[sectionId].classList.remove('hidden-section');
-            sections[sectionId].classList.add('active-section');
+            document.getElementById(`${sectionId}-section`).classList.add('active');
         });
     });
 
     // Product Management
     const addProductBtn = document.getElementById('add-product-btn');
-    const productTableBody = document.getElementById('product-table-body');
+    addProductBtn.addEventListener('click', openAddProductModal);
 
-    addProductBtn.addEventListener('click', () => {
-        // Open add product modal
-        openAddProductModal();
-    });
+    // User Management
+    const addUserBtn = document.getElementById('add-user-btn');
+    addUserBtn.addEventListener('click', openAddUserModal);
 
-    function openAddProductModal() {
-        const modal = document.getElementById('add-product-modal');
-        modal.innerHTML = `
-            <div class="modal-content">
-                <span class="close-modal">&times;</span>
-                <h2>Add New Product</h2>
-                <form id="add-product-form">
-                    <input type="text" name="productName" placeholder="Product Name" required>
-                    <input type="number" name="productPrice" placeholder="Price" required>
-                    <input type="number" name="productStock" placeholder="Stock Quantity" required>
-                    <button type="submit" class="btn btn-primary">Add Product</button>
-                </form>
-            </div>
-        `;
-        modal.style.display = 'block';
+    // Initial Data Load
+    loadProducts();
+    loadUsers();
+    loadTransactionLogs();
+    loadInventory();
+});
 
-        const closeModal = modal.querySelector('.close-modal');
-        closeModal.addEventListener('click', () => {
-            modal.style.display = 'none';
+// Product Management Functions
+async function loadProducts() {
+    try {
+        const response = await fetch('http://localhost:5000/api/products', {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            }
         });
-
-        const addProductForm = modal.querySelector('#add-product-form');
-        addProductForm.addEventListener('submit', handleAddProduct);
+        const products = await response.json();
+        renderProducts(products);
+    } catch (error) {
+        console.error('Error loading products:', error);
     }
+}
 
-    function handleAddProduct(event) {
-        event.preventDefault();
-        const formData = new FormData(event.target);
-        const productData = {
-            name: formData.get('productName'),
-            price: parseFloat(formData.get('productPrice')),
-            stock: parseInt(formData.get('productStock'))
-        };
-
-        // TODO: Send product data to backend
-        console.log('New Product:', productData);
-        addProductToTable(productData);
-        
-        // Close modal
-        document.getElementById('add-product-modal').style.display = 'none';
-    }
-
-    function addProductToTable(product) {
-        const row = productTableBody.insertRow();
+function renderProducts(products) {
+    const productsList = document.getElementById('products-list');
+    productsList.innerHTML = '';
+    
+    products.forEach(product => {
+        const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${generateUniqueId()}</td>
+            <td>${product.id}</td>
             <td>${product.name}</td>
             <td>$${product.price.toFixed(2)}</td>
             <td>${product.stock}</td>
             <td>
-                <button class="btn btn-edit">Edit</button>
-                <button class="btn btn-delete">Delete</button>
+                <button onclick="editProduct(${product.id})">Edit</button>
+                <button onclick="deleteProduct(${product.id})">Delete</button>
             </td>
         `;
-    }
-
-    // User Management
-    const addUserBtn = document.getElementById('add-user-btn');
-    const userTableBody = document.getElementById('user-table-body');
-
-    addUserBtn.addEventListener('click', () => {
-        openAddUserModal();
+        productsList.appendChild(row);
     });
+}
 
-    function openAddUserModal() {
-        const modal = document.getElementById('add-user-modal');
+function openAddProductModal() {
+    const modal = document.getElementById('product-modal');
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h2>Add New Product</h2>
+            <form id="add-product-form">
+                <input type="text" name="name" placeholder="Product Name" required>
+                <input type="number" name="price" placeholder="Price" step="0.01" required>
+                <input type="number" name="stock" placeholder="Stock Quantity" required>
+                <div class="modal-actions">
+                    <button type="submit">Add Product</button>
+                    <button type="button" onclick="closeModal('product-modal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    `;
+    modal.style.display = 'block';
+
+    const form = document.getElementById('add-product-form');
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const productData = Object.fromEntries(formData);
+
+        try {
+            const response = await fetch('http://localhost:5000/api/products', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                },
+                body: JSON.stringify(productData)
+            });
+
+            if (response.ok) {
+                closeModal('product-modal');
+                loadProducts();
+            } else {
+                const error = await response.json();
+                alert(error.message || 'Failed to add product');
+            }
+        } catch (error) {
+            console.error('Error adding product:', error);
+        }
+    });
+}
+
+function editProduct(productId) {
+    // Implementation of edit product logic
+}
+
+function deleteProduct(productId) {
+    // Confirmation and deletion logic
+}
+
+// User Management Functions
+async function loadUsers() {
+    try {
+        const response = await fetch('http://localhost:5000/api/users', {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            }
+        });
+        const users = await response.json();
+        renderUsers(users);
+    } catch (error) {
+        console.error('Error loading users:', error);
+    }
+}
+
+function renderUsers(users) {
+    const usersList = document.getElementById('users-list');
+    usersList.innerHTML = '';
+    
+    users.forEach(user => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${user.id}</td>
+            <td>${user.username}</td>
+            <td>${user.role}</td>
+            <td>
+                <button onclick="editUser(${user.id})">Edit</button>
+                <button onclick="deleteUser(${user.id})">Delete</button>
+            </td>
+        `;
+        usersList.appendChild(row);
+    });
+}
+
+function openAddUserModal() {
+    const modal = document.getElementById('user-modal');
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h2>Add New User</h2>
+            <form id="add-user-form">
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <select name="role" required>
+                    <option value="">Select Role</option>
+                    <option value="admin">Admin</option>
+                    <option value="manager">Manager</option>
+                    <option value="employee">Employee</option>
+                </select>
+                <div class="modal-actions">
+                    <button type="submit">Add User</button>
+                    <button type="button" onclick="closeModal('user-modal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    `;
+    modal.style.display = 'block';
+
+    const form = document.getElementById('add-user-form');
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const userData = Object.fromEntries(formData);
+
+        try {
+            const response = await fetch('http://localhost:5000/api/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                },
+                body: JSON.stringify(userData)
+            });
+
+            if (response.ok) {
+                closeModal('user-modal');
+                loadUsers();
+                showNotification('User added successfully');
+            } else {
+                const error = await response.json();
+                alert(error.message || 'Failed to add user');
+            }
+        } catch (error) {
+            console.error('Error adding user:', error);
+            alert('An error occurred while adding user');
+        }
+    });
+}
+
+function editUser(userId) {
+    // Fetch user details and open edit modal
+    fetch(`http://localhost:5000/api/users/${userId}`, {
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        }
+    })
+    .then(response => response.json())
+    .then(user => {
+        const modal = document.getElementById('user-modal');
         modal.innerHTML = `
             <div class="modal-content">
-                <span class="close-modal">&times;</span>
-                <h2>Add New User</h2>
-                <form id="add-user-form">
-                    <input type="text" name="username" placeholder="Username" required>
-                    <input type="password" name="password" placeholder="Password" required>
+                <h2>Edit User</h2>
+                <form id="edit-user-form">
+                    <input type="hidden" name="id" value="${user.id}">
+                    <input type="text" name="username" value="${user.username}" required>
                     <select name="role" required>
-                        <option value="">Select Role</option>
-                        <option value="admin">Admin</option>
-                        <option value="manager">Manager</option>
-                        <option value="cashier">Cashier</option>
+                        <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+                        <option value="manager" ${user.role === 'manager' ? 'selected' : ''}>Manager</option>
+                        <option value="employee" ${user.role === 'employee' ? 'selected' : ''}>Employee</option>
                     </select>
-                    <button type="submit" class="btn btn-primary">Add User</button>
+                    <input type="password" name="password" placeholder="New Password (optional)">
+                    <div class="modal-actions">
+                        <button type="submit">Update User</button>
+                        <button type="button" onclick="closeModal('user-modal')">Cancel</button>
+                    </div>
                 </form>
             </div>
         `;
         modal.style.display = 'block';
 
-        const closeModal = modal.querySelector('.close-modal');
-        closeModal.addEventListener('click', () => {
-            modal.style.display = 'none';
+        const form = document.getElementById('edit-user-form');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const userData = Object.fromEntries(formData);
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/users/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    },
+                    body: JSON.stringify(userData)
+                });
+
+                if (response.ok) {
+                    closeModal('user-modal');
+                    loadUsers();
+                    showNotification('User updated successfully');
+                } else {
+                    const error = await response.json();
+                    alert(error.message || 'Failed to update user');
+                }
+            } catch (error) {
+                console.error('Error updating user:', error);
+            }
         });
+    })
+    .catch(error => {
+        console.error('Error fetching user details:', error);
+    });
+}
 
-        const addUserForm = modal.querySelector('#add-user-form');
-        addUserForm.addEventListener('submit', handleAddUser);
+function deleteUser(userId) {
+    if (confirm('Are you sure you want to delete this user?')) {
+        fetch(`http://localhost:5000/api/users/${userId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                loadUsers();
+                showNotification('User deleted successfully');
+            } else {
+                return response.json().then(error => {
+                    throw new Error(error.message || 'Failed to delete user');
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting user:', error);
+            alert(error.message);
+        });
     }
+}
 
-    function handleAddUser(event) {
-        event.preventDefault();
-        const formData = new FormData(event.target);
-        const userData = {
-            username: formData.get('username'),
-            password: formData.get('password'),
-            role: formData.get('role')
-        };
-
-        // TODO: Send user data to backend
-        console.log('New User:', userData);
-        addUserToTable(userData);
-        
-        // Close modal
-        document.getElementById('add-user-modal').style.display = 'none';
+// Transaction Logs Functions
+async function loadTransactionLogs() {
+    try {
+        const response = await fetch('http://localhost:5000/api/transactions', {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            }
+        });
+        const transactions = await response.json();
+        renderTransactions(transactions);
+    } catch (error) {
+        console.error('Error loading transactions:', error);
     }
+}
 
-    function addUserToTable(user) {
-        const row = userTableBody.insertRow();
+function renderTransactions(transactions) {
+    const transactionsList = document.getElementById('transactions-list');
+    transactionsList.innerHTML = '';
+    
+    transactions.forEach(transaction => {
+        const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${generateUniqueId()}</td>
-            <td>${user.username}</td>
-            <td>${user.role}</td>
-            <td>${new Date().toLocaleString()}</td>
+            <td>${new Date(transaction.date).toLocaleString()}</td>
+            <td>${transaction.action}</td>
+            <td>${transaction.user}</td>
+            <td>${transaction.details}</td>
+        `;
+        transactionsList.appendChild(row);
+    });
+}
+
+// Inventory Management Functions
+async function loadInventory() {
+    try {
+        const response = await fetch('http://localhost:5000/api/inventory', {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            }
+        });
+        const inventory = await response.json();
+        renderInventory(inventory);
+    } catch (error) {
+        console.error('Error loading inventory:', error);
+    }
+}
+
+function renderInventory(inventory) {
+    const inventoryList = document.getElementById('inventory-list');
+    inventoryList.innerHTML = '';
+    
+    inventory.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${item.productName}</td>
+            <td>${item.currentStock}</td>
+            <td>${item.minimumThreshold}</td>
             <td>
-                <button class="btn btn-edit">Edit</button>
-                <button class="btn btn-delete">Delete</button>
+                <span class="status ${getStockStatus(item.currentStock, item.minimumThreshold)}">
+                    ${getStockStatusText(item.currentStock, item.minimumThreshold)}
+                </span>
             </td>
         `;
-    }
-
-    // Transaction Logs
-    const logsTableBody = document.getElementById('logs-table-body');
-
-    function addTransactionLog(user, action, details) {
-        const row = logsTableBody.insertRow(0); // Insert at the top
-        row.innerHTML = `
-            <td>${new Date().toLocaleString()}</td>
-            <td>${user}</td>
-            <td>${action}</td>
-            <td>${details}</td>
-        `;
-    }
-
-    // Utility Functions
-    function generateUniqueId() {
-        return Math.random().toString(36).substr(2, 9).toUpperCase();
-    }
-
-    // Export Functions
-    function exportToPDF() {
-        // TODO: Implement PDF export using jsPDF
-        console.log('Exporting to PDF...');
-    }
-
-    function exportToExcel() {
-        // TODO: Implement Excel export using XLSX
-        console.log('Exporting to Excel...');
-    }
-
-    // Logout Functionality
-    const logoutBtn = document.querySelector('.logout-btn');
-    logoutBtn.addEventListener('click', () => {
-        // TODO: Implement proper logout logic
-        // Clear authentication token
-        localStorage.removeItem('authToken');
-        // Redirect to login page
-        window.location.href = '/login.html';
+        inventoryList.appendChild(row);
     });
+}
 
-    // Initial Data Loading (Simulated)
-    function loadInitialData() {
-        // Simulate loading dashboard stats
-        document.getElementById('total-products').textContent = '150';
-        document.getElementById('total-users').textContent = '10';
-        document.getElementById('recent-transactions').textContent = '45';
+function getStockStatus(currentStock, minimumThreshold) {
+    if (currentStock === 0) return 'out-of-stock';
+    if (currentStock <= minimumThreshold) return 'low-stock';
+    return 'in-stock';
+}
 
-        // Simulated initial product and user data
-        const initialProducts = [
-            { name: 'Product A', price: 10.99, stock: 100 },
-            { name: 'Product B', price: 15.50, stock: 75 }
-        ];
+function getStockStatusText(currentStock, minimumThreshold) {
+    if (currentStock === 0) return 'Out of Stock';
+    if (currentStock <= minimumThreshold) return 'Low Stock';
+    return 'In Stock';
+}
 
-        const initialUsers = [
-            { username: 'admin1', role: 'admin' },
-            { username: 'manager1', role: 'manager' }
-        ];
+// Utility Functions
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.style.display = 'none';
+}
 
-        initialProducts.forEach(addProductToTable);
-        initialUsers.forEach(addUserToTable);
+function showNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.textContent = message;
+    document.body.appendChild(notification);
 
-        // Add some initial logs
-        addTransactionLog('System', 'Startup', 'Dashboard initialized');
-    }
+    setTimeout(() => {
+        notification.classList.add('show');
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }, 10);
+}
 
-    // Initialize the dashboard
-    loadInitialData();
+function handleLogout() {
+    // Clear authentication token
+    localStorage.removeItem('authToken');
+    
+    // Redirect to login page
+    window.location.href = '../index.html';
+}
 
-    // Real-time updates (simulated)
-    function setupRealTimeUpdates() {
-        // Simulate periodic updates (replace with actual WebSocket or polling)
-        setInterval(() => {
-            // Example: Update dashboard stats or logs
-            addTransactionLog('System', 'Background Check', 'System health check');
-        }, 60000); // Every minute
-    }
+// Error Handling Interceptor
+function setupErrorInterceptor() {
+    const originalFetch = window.fetch;
+    window.fetch = function() {
+        return originalFetch.apply(this, arguments).then(response => {
+            if (response.status === 401) {
+                // Unauthorized - token expired or invalid
+                handleLogout();
+            }
+            return response;
+        }).catch(error => {
+            console.error('Fetch error:', error);
+            showNotification('Network error. Please try again.');
+            throw error;
+        });
+    };
+}
 
-    setupRealTimeUpdates();
-});
-
-// Error Handling Utility
-window.addEventListener('error', (event) => {
-    console.error('Unhandled error:', event.error);
-    // TODO: Implement proper error reporting mechanism
-});
+// Initialize error interceptor
+setupErrorInterceptor();
