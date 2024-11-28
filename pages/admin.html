@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Wholesale Pricelist System</title>
+    <link rel="stylesheet" href="admin-dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-toggle" id="sidebar-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+            <div class="logo">
+                <img src="/path/to/logo.png" alt="Wholesale Pricelist System">
+            </div>
+            <nav class="sidebar-menu">
+                <ul>
+                    <li class="menu-item active" data-section="dashboard">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </li>
+                    <li class="menu-item" data-section="products">
+                        <i class="fas fa-box"></i>
+                        <span>Product Management</span>
+                    </li>
+                    <li class="menu-item" data-section="users">
+                        <i class="fas fa-users"></i>
+                        <span>User Management</span>
+                    </li>
+                    <li class="menu-item" data-section="logs">
+                        <i class="fas fa-history"></i>
+                        <span>Transaction Logs</span>
+                    </li>
+                    <li class="menu-item" data-section="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>System Settings</span>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <main class="main-content" id="main-content">
+            <!-- Dynamic Content Sections -->
+            <section id="dashboard-section" class="active-section">
+                <h1>Admin Dashboard</h1>
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <h3>Total Products</h3>
+                        <p id="total-products">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Users</h3>
+                        <p id="total-users">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Recent Transactions</h3>
+                        <p id="recent-transactions">0</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Product Management Section -->
+            <section id="products-section" class="hidden-section">
+                <h2>Product Management</h2>
+                <div class="product-actions">
+                    <button id="add-product-btn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add New Product
+                    </button>
+                </div>
+                <div class="product-table-container">
+                    <table id="product-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="product-table-body">
+                            <!-- Dynamic product rows will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- User Management Section -->
+            <section id="users-section" class="hidden-section">
+                <h2>User Management</h2>
+                <div class="user-actions">
+                    <button id="add-user-btn" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Add New User
+                    </button>
+                </div>
+                <div class="user-table-container">
+                    <table id="user-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>Last Login</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-table-body">
+                            <!-- Dynamic user rows will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Transaction Logs Section -->
+            <section id="logs-section" class="hidden-section">
+                <h2>Transaction Logs</h2>
+                <div class="logs-table-container">
+                    <table id="logs-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>User</th>
+                                <th>Action</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logs-table-body">
+                            <!-- Dynamic log rows will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+
+        <!-- Modals for Add/Edit Actions -->
+        <div id="add-product-modal" class="modal">
+            <!-- Product Add/Edit Modal Content -->
+        </div>
+
+        <div id="add-user-modal" class="modal">
+            <!-- User Add/Edit Modal Content -->
+        </div>
+    </div>
+
+    <script src="admin-dashboard.js"></script>
+</body>
+</html>

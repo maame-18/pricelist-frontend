@@ -272,3 +272,40 @@ button:hover {
 #delete-section button:hover {
   background-color: #b71c1c;
 }
+
+/* Add styles for the role select dropdown */
+#login-form {
+  background: #fff;
+  padding: 30px; /* Increased padding for better spacing */
+  border-radius: 10px; /* More rounded corners */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Deeper shadow for depth */
+  width: 90%; /* Responsive width */
+  max-width: 400px; /* Max width for larger screens */
+  margin: auto; /* Center the form */
+}
+
+/* Style for the role select dropdown */
+#login-form select {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Button styling */
+#login-form button {
+  background-color: #28a745; 
+  transition: background-color 0.3s;
+}
+
+#login-form button:hover {
+  background-color: #218838;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  #login-form {
+      width: 95%;
+  }
+}
