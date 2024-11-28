@@ -67,10 +67,9 @@ function renderProducts(products) {
     products.forEach(product => {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${product.id}</td>
             <td>${product.name}</td>
             <td>$${product.price.toFixed(2)}</td>
-            <td>${product.stock}</td>
+            <td>${product.quantity}</td>
             <td>
                 <button onclick="editProduct(${product.id})">Edit</button>
                 <button onclick="deleteProduct(${product.id})">Delete</button>
@@ -88,7 +87,7 @@ function openAddProductModal() {
             <form id="add-product-form">
                 <input type="text" name="name" placeholder="Product Name" required>
                 <input type="number" name="price" placeholder="Price" step="0.01" required>
-                <input type="number" name="stock" placeholder="Stock Quantity" required>
+                <input type="number" name="quantity" placeholder="Stock Quantity" required>
                 <div class="modal-actions">
                     <button type="submit">Add Product</button>
                     <button type="button" onclick="closeModal('product-modal')">Cancel</button>
@@ -129,6 +128,7 @@ function openAddProductModal() {
 
 function editProduct(productId) {
     // Implementation of edit product logic
+    
 }
 
 function deleteProduct(productId) {

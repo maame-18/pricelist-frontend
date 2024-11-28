@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wholesale Pricelist System - User Dashboard</title>
+    <link rel="stylesheet" href="./css/user-dashboard.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-toggle" id="sidebar-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="logo">
+                    <img src="./assets/logo.png" alt="Wholesale Pricelist System">
+                </div>
+                <ul>
+                    <li class="menu-item active" data-section="pricelist">
+                        <i class="fas fa-list-alt"></i>
+                        <span>Pricelist</span>
+                    </li>
+                    <li class="menu-item" data-section="transactions">
+                        <i class="fas fa-receipt"></i>
+                        <span>My Transactions</span>
+                    </li>
+                    <li class="menu-item" data-section="profile">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Profile</span>
+                    </li>
+                    <li class="menu-item logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Pricelist Section -->
+            <section id="pricelist-section" class="section active">
+                <h1>Product Pricelist</h1>
+                <div class="search-container">
+                    <input type="text" id="search-input" placeholder="Search products...">
+                    <select id="category-filter">
+                        <option value="">All Categories</option>
+                        <!-- Categories will be populated dynamically -->
+                    </select>
+                </div>
+                <div class="table-container">
+                    <table id="pricelist-table">
+                        <thead>
+                            <tr>
+                                <th>Product ID</th>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Available Stock</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pricelist-body">
+                            <!-- Pricelist items will be dynamically populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Transactions Section -->
+            <section id="transactions-section" class="section">
+                <h1>My Transactions</h1>
+                <div class="transaction-stats">
+                    <div class="stat-card">
+                        <h3>Total Transactions</h3>
+                        <p id="total-transactions">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Sales Value</h3>
+                        <p id="total-sales-value">$0.00</p>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th>Date</th>
+                                <th>Total Amount</th>
+                                <th>Products</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactions-body">
+                            <!-- Transactions will be dynamically populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Profile Section -->
+            <section id="profile-section" class="section">
+                <h1>User Profile</h1>
+                <div class="profile-container">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="profile-info">
+                            <h2 id="profile-name">John Doe</h2>
+                            <p id="profile-role">Employee</p>
+                        </div>
+                    </div>
+                    <form id="profile-form">
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" id="username" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="email">
+                        </div>
+                        <div class="form-group">
+                            <label>Change Password</label>
+                            <input type="password" id="current-password" placeholder="Current Password">
+                            <input type="password" id="new-password" placeholder="New Password">
+                            <input type="password" id="confirm-password" placeholder="Confirm New Password">
+                        </div>
+                        <button type="submit" class="btn-update">Update Profile</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="./js/user-dashboard.js"></script>
+</body>
+</html>

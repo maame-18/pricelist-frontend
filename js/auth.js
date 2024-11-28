@@ -41,19 +41,12 @@ async function handleLogin(event) {
             }
 
             // Redirect based on user role
-            switch(role) {
-                case 'admin':
-                    window.location.href = '../pages/admin.html';
-                    break;
-                case 'manager':
-                    window.location.href = '/manager-dashboard.html';
-                    break;
-                case 'employee':
-                    window.location.href = '/employee-dashboard.html';
-                    break;
-                default:
-                    window.location.href = '/dashboard.html';
+            if (role === 'admin') {
+                window.location.href = '../pages/admin.html';
+            } else {
+                window.location.href = '../pages/user.html';
             }
+
         } else {
             // Login failed
             alert(result.message || 'Login failed. Please check your credentials.');
