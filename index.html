@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wholesale Supermarket Pricing System</title>
+    <link rel="stylesheet" href="./css/data.css">
+    <script src="./js/data.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+
+</head>
+<body>     
+    <!-- Login Page -->
+<div id="login-container">
+  <form id="login-form" onsubmit="handleLogin(event)">
+    <h2>Login</h2>
+    <label for="username">Username:</label>
+    <input type="text" id="username" placeholder="Enter username" required>
+    
+    <label for="password">Password:</label>
+    <input type="password" id="password" placeholder="Enter password" required>
+    
+    <button type="submit">Login</button>
+  </form>
+</div>
+
+<!-- Admin Panel -->
+<div id="admin-container" >
+  <div id="admin-panel">
+    <h2>Admin Panel</h2>
+  
+    <!-- Monitor Activities -->
+    <h3>Recent Transactions</h3>
+    <table id="transaction-table">
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>Action</th>
+          <th>Product</th>
+          <th>Price</th>
+        </tr>
+      </thead>
+      <tbody id="transaction-list">
+        <!-- Transactions will be dynamically inserted here -->
+      </tbody>
+    </table>
+  
+    <!-- Update Product Price -->
+    <h3>Update Product Price</h3>
+    <table id="update-stock-table">
+      <tr>
+        <td><label for="product-name">Product Name:</label></td>
+        <td><input type="text" id="product-name" placeholder="Enter product name" required></td>
+      </tr>
+      <tr>
+        <td><label for="product-price">Price:</label></td>
+        <td><input type="number" id="product-price" placeholder="Enter price" required></td>
+      </tr>
+      <tr>
+        <td>
+          <button onclick="updatePrice(event)">Update Price</button>
+        </td>
+      </tr>
+    </table>
+  
+    <!-- Delete Products Section -->
+    <h3>Delete Out-of-Stock Products</h3>
+    <div id="delete-section">
+      <button onclick="deleteOutOfStock()">Delete Out-of-Stock Products</button>
+    </div>
+  </div>
+  
+  </div>
+
+  
+  <div id="app-container">
+      
+           <div class="container">
+        <h1>Wholesale Pricing System</h1>
+
+        <div class="search-container">
+            <input type="text" id="search-bar" placeholder="Search for a product..." onkeyup="searchProduct()">
+            <button onclick="searchProduct()">Search</button>
+          </div>
+          
+    
+        <form id="pricing-form">
+          <table id="pricing-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Size</th>
+                <th>Unit Price (Ȼ)</th>
+                <th>Quantity</th>
+                <th>Total Price (Ȼ)</th>
+              </tr>
+            </thead>
+            <tbody>
+            
+                <!--Rice Category-->
+              <tr>
+                <td>Royal Aroma Rice</td>
+                <td>5*5kg</td>
+                <td data-unit-price="540">540</td>
+                <td><input type="number" class="quantity" data-price="250" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+              <tr>
+                <td>Cindy Rice</td>
+                <td>5*5kg</td>
+                <td data-unit-price="575">575</td>
+                <td><input type="number" class="quantity" data-price="130" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+
+              <tr>
+                <td>Abena Rice</td>
+                <td>5*4.5kg</td>
+                <td data-unit-price="520">520</td>
+                <td><input type="number" class="quantity" data-price="130" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+              
+              <tr>
+                <td>K75 Rice</td>
+                <td>5*4kg</td>
+                <td data-unit-price="500">500</td>
+                <td><input type="number" class="quantity" data-price="130" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+
+              <tr>
+                <td>Lele Rice</td>
+                <td>5*5kg</td>
+                <td data-unit-price="700">700</td>
+                <td><input type="number" class="quantity" data-price="130" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+
+              <tr>
+                <td>Dubai Rice</td>
+                <td>5*5kg</td>
+                <td data-unit-price="510">510</td>
+                <td><input type="number" class="quantity" data-price="130" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+
+              <tr>
+                <td>Oba Rice</td>
+                <td>5*4kg</td>
+                <td data-unit-price="470">470</td>
+                <td><input type="number" class="quantity" data-price="130" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+
+              <tr>
+                <td>Ceci Rice</td>
+                <td>5*5kg</td>
+                <td data-unit-price="420">420</td>
+                <td><input type="number" class="quantity" data-price="130" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+
+              <tr>
+                <td>Milicent Rice</td>
+                <td>5*5kg</td>
+                <td data-unit-price="970">970</td>
+                <td><input type="number" class="quantity" data-price="130" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+                <!--Oil section-->
+              <tr>
+                <td>Canola Oil</td>
+                <td>2.48L - 2 pieces</td>
+                <td data-unit-price="500">500</td>
+                <td><input type="number" class="quantity" data-price="70" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+
+              <tr>
+                <td>Unoli Sunflower Oil</td>
+                <td>5L</td>
+                <td data-unit-price="345">345</td>
+                <td><input type="number" class="quantity" data-price="70" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+
+              <tr>
+                <td>Unoli fresh soyabean Oil</td>
+                <td>5L</td>
+                <td data-unit-price="500">500</td>
+                <td><input type="number" class="quantity" data-price="70" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+
+              <tr>
+                <td>Frytol vegeatable cooking oil</td>
+                <td>1L</td>
+                <td data-unit-price="120">120</td>
+                <td><input type="number" class="quantity" data-price="70" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+              
+              <tr>
+                <td>Frytol vegetable sunflower oil</td>
+                <td>1.8L</td>
+                <td data-unit-price="100">100</td>
+                <td><input type="number" class="quantity" data-price="50" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+
+              <tr>
+                <td>Frytol vegeatable cooking oil</td>
+                <td>4.5L</td>
+                <td data-unit-price="370">370</td>
+                <td><input type="number" class="quantity" data-price="50" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+              
+              <tr>
+                <td>OBA Sunflower oil</td>
+                <td>4.5L</td>
+                <td data-unit-price="220">220</td>
+                <td><input type="number" class="quantity" data-price="50" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+
+              <tr>
+                <td>OBA Sunflower oil</td>
+                <td>900ML</td>
+                <td data-unit-price="44.99">44.99</td>
+                <td><input type="number" class="quantity" data-price="50" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+
+              <tr>
+                <td>Borges classic olive oil</td>
+                <td>5L</td>
+                <td data-unit-price="1,5999.99">44.99</td>
+                <td><input type="number" class="quantity" data-price="50" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+
+              <tr>
+                <td>Borges essences with garlic olive oil</td>
+                <td>250ML</td>
+                <td data-unit-price="99.99">99.99</td>
+                <td><input type="number" class="quantity" data-price="50" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+
+              <tr>
+                <td>Borges extra virgin oil original</td>
+                <td>750ML</td>
+                <td data-unit-price="271.99">271.99</td>
+                <td><input type="number" class="quantity" data-price="50" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+
+              <tr>
+                <td>Borges classico live oil</td>
+                <td>1L</td>
+                <td data-unit-price="349.99">349.99</td>
+                <td><input type="number" class="quantity" data-price="50" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+
+              <tr>
+                <td>Lele sunflower oil</td>
+                <td>1.8L</td>
+                <td data-unit-price="106.99">106.99</td>
+                <td><input type="number" class="quantity" data-price="50" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+
+              <tr>
+                <td>Lele sunflower oil</td>
+                <td>1L</td>
+                <td data-unit-price="54.99">54.99</td>
+                <td><input type="number" class="quantity" data-price="50" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+
+              <tr>
+                <td>Platinum sunflower oil</td>
+                <td>900ML</td>
+                <td data-unit-price="44.99">44.99</td>
+                <td><input type="number" class="quantity" data-price="50" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+
+              <tr>
+                <td>Platinum sunflower oil</td>
+                <td>5L</td>
+                <td data-unit-price="249.99">249.99</td>
+                <td><input type="number" class="quantity" data-price="50" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+
+              <tr>
+                <td>Tomatoes (Cartons)</td>
+                <td>Medium</td>
+                <td data-unit-price="50">50</td>
+                <td><input type="number" class="quantity" data-price="50" min="0" value="0"></td>
+                <td class="row-total">0</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="4" class="text-right"><strong>Grand Total (Ȼ):</strong></td>
+                <td id="grand-total">0</td>
+              </tr>
+            </tfoot>
+          </table>
+          <button type="button" onclick="calculateAll()">Calculate Total</button>
+        </form>
+
+        <button onclick="exportToPDF()">Export to PDF</button>
+
+        <button onclick="exportToExcel()">Export to Excel</button>
+
+      </div>
+
+</div>
+</body>
+</html>
